@@ -11,10 +11,7 @@ function _init()
  
  add_player(0,16,16)
  add_player(1,32,32)
- 
- --p2_x=32
- --p2_y=32
- 
+  
  han=0
  cooldown=0
 
@@ -163,9 +160,7 @@ end
 function collide_han(p1)
  for p2 in all(players) do
   
-  if p1.idx==p2.idx then
-   --wat
-  else
+  if p1.idx!=p2.idx then
   	local collision = collide_player(p1.x,p1.y,p2.x,p2.y)
    local iscooling = cooldown != 0
 
