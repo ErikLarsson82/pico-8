@@ -5,18 +5,15 @@ __lua__
 
 function _init()
  
+ players={}
+ 
  m=0
  
-	p1_x=16
- p1_y=16
- p1_vx=0
- p1_vy=0
- p1_bx=0
- p1_by=0
- p1_f=0
+ add_player(0,16,16)
+ add_player(1,32,32)
  
- p2_x=32
- p2_y=32
+ --p2_x=32
+ --p2_y=32
  
  han=0
  cooldown=0
@@ -27,119 +24,32 @@ end
 
 function _update()
 
- p1_f+=0.3
- if p1_f>2 then
-  p1_f=0
- end
+	update_players()
  
-	if false and p1_bx==3 then
-		if not collide(p1_x+1,p1_y,0) then
-		 p1_x+=1
-		else
- 		p1_bx=0
- 	end
- 	
-		if not collide(p1_x+1,p1_y,0) then
-		 p1_x+=1
-		else
- 		p1_bx=0
- 	end
-
-		if not collide(p1_x+1,p1_y,0) then
-		 p1_x+=1
-		else
- 		p1_bx=0
- 	end
-
- else
-  
- end
- 
- local s=0.9
- local friction=0.7
- 
- if btn(0) then
-  p1_vx-=s
- end
- if btn(1) then
-  p1_vx+=s
- end
- if btn(2) then
-  p1_vy-=s
- end
- if btn(3) then
-  p1_vy+=s
- end
-  
- p1_vx*=friction
- p1_vy*=friction
- 
- local cx=p1_x+p1_vx
- local cy=p1_y+p1_vy
- 
- if collide(cx,p1_y,0) then
- 	p1_vx=0
- else
- 	p1_x=cx
- end
-
-	if collide(p1_x,cy,0) then
-	 p1_vy=0
-	else
- 	p1_y=cy
- end 
- 
- if collide(p1_x,p1_y,1) and han==0 then
- 	m+=1
- 	
- 	if m>2 then
- 	 m=0
- 	end
- 	
- end
- 
- if btn(4) then
- 	p1_bx=3
- end
- 
- local collision = collide_player(p1_x,p1_y,p2_x,p2_y)
- local iscooling = cooldown != 0
-
- if collision and not iscooling then
-  sfx(0)
-  cooldown=30
-  if han==0 then
-   han=1
-  else
-   han=0
-  end
- end
+ collide_players()
  
  if cooldown > 0 then
- 	cooldown-=1
+  cooldown-=1
  end
 end
 -->8
 --draw
 
-function _draw()
+
+function _draw2()
  cls(1)
  map(m*16)
-	spr(16+p1_f,p1_x,p1_y)
-	if han==0 then
-	 if cooldown==0 then
-	  spr(4,p1_x,p1_y)
-	 else
-	  spr(5,p1_x,p1_y)
+ 
+ for p in all(players) do
+ 	spr(16+p.f,p.x,p.y)
+ 
+	 if han==p.idx then
+	  if cooldown==0 then
+	   spr(4,p.x,p.y)
+	  else
+	   spr(5,p.x,p.y)
+	  end
 	 end
-	end
-	spr(3,p2_x,p2_y)
-	if han==1 then
-	 if cooldown==0 then
-	  spr(4,p2_x,p2_y)
-	 else
-   spr(5,p2_x,p2_y)	  
-  end
 	end
 end
 -->8
@@ -170,6 +80,105 @@ function collide_player(p1_x,p1_y,p2_x,p2_y)
 	local c = p1_y+8>p2_y
  local d = p1_y<p2_y+8 
  return a and b and c and d
+end
+
+-->8
+--players
+
+function add_player(_idx,_x,_y)
+
+	local p = {}
+	
+	p.idx=_idx
+	p.x=_x
+ p.y=_y
+ p.vx=0
+ p.vy=0
+ p.bx=0
+ p.by=0
+ p.f=0
+ 
+	add(players, p)
+end
+
+function update_players()
+ for p in all(players) do
+  p.f+=0.3
+  if p.f>2 then
+   p.f=0
+  end
+ 
+  local s=0.9
+  local friction=0.7
+ 
+  if btn(0) and p.idx==0 then
+   p.vx-=s
+  end
+  if btn(1) and p.idx==0 then
+   p.vx+=s
+  end
+  if btn(2) and p.idx==0 then
+   p.vy-=s
+  end
+  if btn(3) and p.idx==0 then
+   p.vy+=s
+  end
+   
+  p.vx*=friction
+  p.vy*=friction
+ 
+  local cx=p.x+p.vx
+  local cy=p.y+p.vy
+ 
+  if collide(cx,p.y,0) then
+  	p.vx=0
+  else
+  	p.x=cx
+  end
+
+	 if collide(p.x,cy,0) then
+	  p.vy=0
+	 else
+ 	 p.y=cy
+  end 
+ 
+  if collide(p.x,p.y,1) and han==0 then
+  	m+=1
+ 	
+ 	 if m>2 then
+ 	  m=0
+ 	 end
+ 	
+  end
+ end
+end
+
+function collide_players()
+ for p in all(players) do
+  if p.idx==han then
+   collide_han(p)
+  end
+ end
+end
+
+function collide_han(p1)
+ for p2 in all(players) do
+  
+  if not p1.idx==p2.idx then
+   print("yes")
+   sfx(0)
+   local collision = collide_player(p1.x,p1.y,p2.x,p2.y)
+   local iscooling = cooldown != 0
+
+   if collision then --and not iscooling 
+    sfx(0)
+    cooldown=30
+    han=p2.idx
+   end
+  else
+  	print("no")
+  end
+ end
 end
 
 __gfx__
