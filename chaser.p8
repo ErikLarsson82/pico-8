@@ -9,6 +9,8 @@ function _init()
  
 	p1_x=16
  p1_y=16
+ p1_vx=0
+ p1_vy=0
  p1_bx=0
  p1_by=0
  p1_f=0
@@ -30,7 +32,7 @@ function _update()
   p1_f=0
  end
  
-	if p1_bx==3 then
+	if false and p1_bx==3 then
 		if not collide(p1_x+1,p1_y,0) then
 		 p1_x+=1
 		else
@@ -50,19 +52,42 @@ function _update()
  	end
 
  else
-  if btn(0) and not collide(p1_x-1,p1_y,0) then
-   p1_x-=1
-  end
-  if btn(1) and not collide(p1_x+1,p1_y,0) then
-   p1_x+=1
-  end
-  if btn(2) and not collide(p1_x,p1_y-1,0) then
-   p1_y-=1
-  end
-  if btn(3) and not collide(p1_x,p1_y+1,0) then
-   p1_y+=1
-  end
+  
  end
+ 
+ local s=0.9
+ local friction=0.7
+ 
+ if btn(0) then
+  p1_vx-=s
+ end
+ if btn(1) then
+  p1_vx+=s
+ end
+ if btn(2) then
+  p1_vy-=s
+ end
+ if btn(3) then
+  p1_vy+=s
+ end
+  
+ p1_vx*=friction
+ p1_vy*=friction
+ 
+ local cx=p1_x+p1_vx
+ local cy=p1_y+p1_vy
+ 
+ if collide(cx,p1_y,0) then
+ 	p1_vx=0
+ else
+ 	p1_x=cx
+ end
+
+	if collide(p1_x,cy,0) then
+	 p1_vy=0
+	else
+ 	p1_y=cy
+ end 
  
  if collide(p1_x,p1_y,1) and han==0 then
  	m+=1
