@@ -35,8 +35,7 @@ end
 -->8
 --draw
 
-
-function _draw2()
+function _draw()
  cls(1)
  map(m*16)
  
@@ -111,16 +110,16 @@ function update_players()
   local s=0.9
   local friction=0.7
  
-  if btn(0) and p.idx==0 then
+  if btn(0,p.idx) then
    p.vx-=s
   end
-  if btn(1) and p.idx==0 then
+  if btn(1,p.idx) then
    p.vx+=s
   end
-  if btn(2) and p.idx==0 then
+  if btn(2,p.idx) then
    p.vy-=s
   end
-  if btn(3) and p.idx==0 then
+  if btn(3,p.idx) then
    p.vy+=s
   end
    
@@ -164,19 +163,17 @@ end
 function collide_han(p1)
  for p2 in all(players) do
   
-  if not p1.idx==p2.idx then
-   print("yes")
-   sfx(0)
-   local collision = collide_player(p1.x,p1.y,p2.x,p2.y)
+  if p1.idx==p2.idx then
+   --wat
+  else
+  	local collision = collide_player(p1.x,p1.y,p2.x,p2.y)
    local iscooling = cooldown != 0
 
-   if collision then --and not iscooling 
+   if collision and not iscooling then
     sfx(0)
     cooldown=30
     han=p2.idx
    end
-  else
-  	print("no")
   end
  end
 end
